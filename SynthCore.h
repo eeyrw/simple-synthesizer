@@ -10,8 +10,8 @@
 typedef struct _SoundUnit
 {
 	uint16_t increment;
-	uint8_t wavetablePos_frac;
-	uint16_t wavetablePos_int;
+	uint8_t envelopeStatus;
+	uint16_t waveGenAccumulator;
 	uint8_t envelopeLevel;
 	uint8_t envelopePos;
 	int16_t val;
@@ -22,8 +22,8 @@ typedef struct _SoundUnitSplit
 {
 	uint8_t increment_frac;
 	uint8_t increment_int;
-	uint8_t wavetablePos_frac;
-	uint16_t wavetablePos_int;
+	uint8_t envelopeStatus;
+	uint16_t waveGenAccumulator;
 	uint8_t envelopeLevel;
 	uint8_t envelopePos;
 	int16_t val;

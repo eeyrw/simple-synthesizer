@@ -7,33 +7,36 @@ POLY_NUM=6
 DECAY_TIME_FACTOR=150
 
 
-;typedef struct _SoundUnit
-;{
-;	uint8_t increment_frac;
-;	uint8_t increment_int;
-;	uint8_t  wavetablePos_frac;
-;	uint16_t  wavetablePos_int;
-;	uint8_t envelopeLevel;
-;	uint8_t envelopePos;
-;	int16_t val;
-;	int8_t sampleVal;
-;} SoundUnit;
+; typedef struct _SoundUnit
+; {
+; 	uint16_t increment;
+; 	uint8_t envelopeStatus;
+; 	uint16_t waveGenAccumulator;
+; 	uint8_t envelopeLevel;
+; 	uint8_t envelopePos;
+; 	int16_t val;
+; 	int8_t sampleVal;
+; } SoundUnit;
 
-
-;typedef struct _Synthesizer
-;{
-;    SoundUnitUnion SoundUnitUnionList[POLY_NUM];
-;	 int16_t mixOut;
-;    uint8_t lastSoundUnit;
-;}Synthesizer;
+; typedef struct _SoundUnitSplit
+; {
+; 	uint8_t increment_frac;
+; 	uint8_t increment_int;
+; 	uint8_t envelopeStatus;
+; 	uint16_t waveGenAccumulator;
+; 	uint8_t envelopeLevel;
+; 	uint8_t envelopePos;
+; 	int16_t val;
+; 	int8_t sampleVal;
+; } SoundUnitSplit;
 
 unitSz=10
 
 pIncrement_int=1
 pIncrement_frac=0
-pWavetablePos_frac=2
-pWavetablePos_int_h=4
-pWavetablePos_int_l=3
+pEnvelopeStatus=2
+pWaveGenAccumulator_h=4
+pWaveGenAccumulator_l=3
 pEnvelopeLevel=5
 pEnvelopePos=6
 pVal_l=7
