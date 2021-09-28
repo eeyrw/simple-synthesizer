@@ -13,35 +13,14 @@ _SynthAsm:
 	mov b,a
 	jz soundUnitProcessEnd'Idx'$
 
-	mov dpl, (pSndUnit+pWavetablePos_int_l)
-	mov a,(pSndUnit+pWavetablePos_int_h)
-	add a,#(_WaveTable>>8)
-	mov dph,a
-	mov a,#(_WaveTable)
-	movc a,@a+dptr
+	mov a,(pSndUnit+pWaveGenAccumulator_int)
 	mov (pSndUnit+pSampleVal),a
 
-	jb a.7,signedMulNegBranch'Idx'$	; Do signed mutiple with unsigned MUL
 	mul ab
 	mov (pSndUnit+pVal_l),a
 	mov (pSndUnit+pVal_h),b
 	mov a,b			; Div with 0xFF
 	mov b,#0
-	sjmp signedMulEnd'Idx'$
-	signedMulNegBranch'Idx'$:
-	cpl a				;Do signed mutiple with unsigned MUL
-	inc a
-	mul ab				; Mutiple envelopeLevel with sample
-
-	cpl  a
-	add  a,#1
-	mov (pSndUnit+pVal_l),a
-	mov a,b
-	cpl a
-	addc a,#0
-	mov (pSndUnit+pVal_h),a	
-	mov b,#0xFF ; Div with 0xFF	
-	signedMulEnd'Idx'$:
 
 	add a, (pSynth+pMixOut_l)
 	mov (pSynth+pMixOut_l),a
@@ -49,37 +28,15 @@ _SynthAsm:
 	addc a,(pSynth+pMixOut_h)
 	mov (pSynth+pMixOut_h),a
 
+
 	mov a,(pSndUnit+pIncrement_frac)
-	add a,(pSndUnit+pWavetablePos_frac)
-	mov (pSndUnit+pWavetablePos_frac),a
+	add a,(pSndUnit+pWaveGenAccumulator_frac)
+	mov (pSndUnit+pWaveGenAccumulator_frac),a
 
 	mov a,(pSndUnit+pIncrement_int)
-	addc a,(pSndUnit+pWavetablePos_int_l)
-	mov (pSndUnit+pWavetablePos_int_l),a
-
-	mov a,#0
-	addc a,(pSndUnit+pWavetablePos_int_h)
-	mov (pSndUnit+pWavetablePos_int_h),a
-
-
-	; if (waveTablePosInt >= WAVETABLE_LEN)
-	clr c
-	mov a,(pSndUnit+pWavetablePos_int_l)
-	subb a,#(WAVETABLE_LEN)
-	mov a,(pSndUnit+pWavetablePos_int_h) 
-	subb a,#((WAVETABLE_LEN)>>8)
-	jc waveTablePosAdjustEnd'Idx'$
-	;	waveTablePosInt -= WAVETABLE_LOOP_LEN;
-	clr c			
-	mov a,(pSndUnit+pWavetablePos_int_l)
-	subb a,#WAVETABLE_LOOP_LEN
-	mov (pSndUnit+pWavetablePos_int_l),a
-	mov a,(pSndUnit+pWavetablePos_int_h)
-	subb a, #(WAVETABLE_LOOP_LEN>>8)	
-	mov (pSndUnit+pWavetablePos_int_h),a	
-	waveTablePosAdjustEnd'Idx'$:
-	soundUnitProcessEnd'Idx'$:
-
+	addc a,(pSndUnit+pWaveGenAccumulator_int)
+	mov (pSndUnit+pWaveGenAccumulator_int),a
+soundUnitProcessEnd'Idx'$:
 .endm
 
 	mov r4,(pSynth+pMixOut_l)

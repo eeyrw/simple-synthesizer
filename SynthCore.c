@@ -1,11 +1,12 @@
 #include "SynthCore.h"
 #include <stdint.h>
 #include <stdio.h>
-#include "WaveTable.h"
 
 #ifdef RUN_TEST
 Synthesizer synthForC;
 #endif
+
+__code uint16_t AccumIncrement[128];
 
 void SynthInit(Synthesizer *synth)
 {
@@ -13,8 +14,8 @@ void SynthInit(Synthesizer *synth)
 	for (uint8_t i = 0; i < POLY_NUM; i++)
 	{
 		soundUnionList[i].combine.increment = 0;
-		soundUnionList[i].combine.wavetablePos_frac = 0;
-		soundUnionList[i].combine.wavetablePos_int = 0;
+		soundUnionList[i].combine.envelopeStatus = STATUS_IDLE;
+		soundUnionList[i].combine.waveGenAccumulator = 0;
 		soundUnionList[i].combine.envelopeLevel = 255;
 		soundUnionList[i].combine.envelopePos = 0;
 		soundUnionList[i].combine.val = 0;
@@ -22,48 +23,14 @@ void SynthInit(Synthesizer *synth)
 	synth->lastSoundUnit = 0;
 }
 #ifdef RUN_TEST
-void NoteOnAsmP(uint8_t note)
-{
-	uint8_t lastSoundUnit = synthForAsm.lastSoundUnit;
-
-	// disable_interrupts();
-	synthForAsm.SoundUnitUnionList[lastSoundUnit].combine.increment = WaveTable_Increment[note & 0x7F];
-	synthForAsm.SoundUnitUnionList[lastSoundUnit].combine.wavetablePos_frac = 0;
-	synthForAsm.SoundUnitUnionList[lastSoundUnit].combine.wavetablePos_int = 0;
-	synthForAsm.SoundUnitUnionList[lastSoundUnit].combine.envelopePos = 0;
-	synthForAsm.SoundUnitUnionList[lastSoundUnit].combine.envelopeLevel = 255;
-	// enable_interrupts();
-
-	lastSoundUnit++;
-
-	if (lastSoundUnit == POLY_NUM)
-		lastSoundUnit = 0;
-
-	synthForAsm.lastSoundUnit = lastSoundUnit;
-}
-
-void GenDecayEnvlopeAsmP(void)
-{
-	__data SoundUnitUnion *soundUnionList = &(synthForAsm.SoundUnitUnionList[0]);
-	for (uint8_t i = 0; i < POLY_NUM; i++)
-	{
-		if (soundUnionList[i].split.wavetablePos_int >= WAVETABLE_ATTACK_LEN &&
-			(soundUnionList[i].split.envelopePos < (sizeof(EnvelopeTable) - 1)))
-		{
-			uint8_t p = soundUnionList[i].split.envelopePos;
-			soundUnionList[i].split.envelopeLevel = EnvelopeTable[p];
-			soundUnionList[i].split.envelopePos += 1;
-		}
-	}
-}
 void NoteOnC(uint8_t note)
 {
 	uint8_t lastSoundUnit = synthForC.lastSoundUnit;
 
 	// disable_interrupts();
-	synthForC.SoundUnitUnionList[lastSoundUnit].combine.increment = WaveTable_Increment[note & 0x7F];
-	synthForC.SoundUnitUnionList[lastSoundUnit].combine.wavetablePos_frac = 0;
-	synthForC.SoundUnitUnionList[lastSoundUnit].combine.wavetablePos_int = 0;
+	synthForC.SoundUnitUnionList[lastSoundUnit].combine.increment = AccumIncrement[note & 0x7F];
+	synthForC.SoundUnitUnionList[lastSoundUnit].combine.envelopeStatus = STATUS_ATTACK;
+	synthForC.SoundUnitUnionList[lastSoundUnit].combine.waveGenAccumulator = 0;
 	synthForC.SoundUnitUnionList[lastSoundUnit].combine.envelopePos = 0;
 	synthForC.SoundUnitUnionList[lastSoundUnit].combine.envelopeLevel = 255;
 	// enable_interrupts();
@@ -76,6 +43,11 @@ void NoteOnC(uint8_t note)
 	synthForC.lastSoundUnit = lastSoundUnit;
 }
 
+void NoteOnAsmP(uint8_t note)
+{
+	NoteOnC(note);
+}
+
 void SynthC(void)
 {
 	synthForC.mixOut = 0;
@@ -84,34 +56,46 @@ void SynthC(void)
 	{
 		if (soundUnionList[i].combine.envelopeLevel == 0)
 			continue;
-		soundUnionList[i].combine.sampleVal = WaveTable[soundUnionList[i].combine.wavetablePos_int];
-		soundUnionList[i].combine.val = (int16_t)soundUnionList[i].combine.envelopeLevel * soundUnionList[i].combine.sampleVal;
+		soundUnionList[i].combine.sampleVal = soundUnionList[i].split.waveGenAccumulator_int;
+		soundUnionList[i].combine.val = (uint16_t)soundUnionList[i].combine.envelopeLevel * soundUnionList[i].combine.sampleVal;
 
-		uint32_t waveTablePos = soundUnionList[i].combine.increment +
-								soundUnionList[i].combine.wavetablePos_frac +
-								((uint32_t)soundUnionList[i].combine.wavetablePos_int << 8);
-
-		uint16_t waveTablePosInt = waveTablePos >> 8;
-		if (waveTablePosInt >= WAVETABLE_LEN)
-			waveTablePosInt -= WAVETABLE_LOOP_LEN;
-		soundUnionList[i].combine.wavetablePos_int = waveTablePosInt;
-		soundUnionList[i].combine.wavetablePos_frac = 0xFF & waveTablePos;
+		soundUnionList[i].combine.waveGenAccumulator += soundUnionList[i].combine.increment;
 		synthForC.mixOut += (soundUnionList[i].combine.val >> 8);
 	}
 }
 
 void GenDecayEnvlopeC(void)
 {
-	__xdata SoundUnitUnion *soundUnionList = &(synthForC.SoundUnitUnionList[0]);
+	__data SoundUnitUnion *soundUnionList = &(synthForAsm.SoundUnitUnionList[0]);
 	for (uint8_t i = 0; i < POLY_NUM; i++)
 	{
-		if (soundUnionList[i].split.wavetablePos_int >= WAVETABLE_ATTACK_LEN &&
-			(soundUnionList[i].split.envelopePos < (sizeof(EnvelopeTable) - 1)))
+		if (soundUnionList[i].combine.envelopeStatus == STATUS_ATTACK)
 		{
-			uint8_t p = soundUnionList[i].split.envelopePos;
-			soundUnionList[i].split.envelopeLevel = EnvelopeTable[p];
-			soundUnionList[i].split.envelopePos += 1;
+			if (soundUnionList[i].combine.envelopePos < ATTACK_TIME_FACTOR)
+				soundUnionList[i].combine.envelopePos += 1;
+			else
+			{
+				soundUnionList[i].combine.envelopePos = 0;
+				soundUnionList[i].combine.envelopeStatus = STATUS_DECAY;
+			}
+		}
+		else if (soundUnionList[i].combine.envelopeStatus == STATUS_DECAY)
+		{
+			if (soundUnionList[i].combine.envelopePos < (sizeof(EnvelopeTable) - 1))
+			{
+				soundUnionList[i].combine.envelopeLevel = EnvelopeTable[soundUnionList[i].combine.envelopePos];
+				soundUnionList[i].combine.envelopePos += 1;
+			}
+			else
+			{
+				soundUnionList[i].combine.envelopeStatus = STATUS_STOP;
+			}
 		}
 	}
+}
+
+void GenDecayEnvlopeAsmP(void)
+{
+	GenDecayEnvlopeC();
 }
 #endif

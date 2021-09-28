@@ -6,6 +6,14 @@
 
 #define POLY_NUM 6
 #define DECAY_TIME_FACTOR 150
+#define ATTACK_TIME_FACTOR 100
+
+enum ENVELOPE_STATUS
+{
+	STATUS_ATTACK = 0,
+	STATUS_DECAY = 1,
+	STATUS_IDLE = 3
+};
 
 typedef struct _SoundUnit
 {
@@ -14,8 +22,8 @@ typedef struct _SoundUnit
 	uint16_t waveGenAccumulator;
 	uint8_t envelopeLevel;
 	uint8_t envelopePos;
-	int16_t val;
-	int8_t sampleVal;
+	uint16_t val;
+	uint8_t sampleVal;
 } SoundUnit;
 
 typedef struct _SoundUnitSplit
@@ -23,11 +31,12 @@ typedef struct _SoundUnitSplit
 	uint8_t increment_frac;
 	uint8_t increment_int;
 	uint8_t envelopeStatus;
-	uint16_t waveGenAccumulator;
+	uint8_t waveGenAccumulator_frac;
+	uint8_t waveGenAccumulator_int;
 	uint8_t envelopeLevel;
 	uint8_t envelopePos;
-	int16_t val;
-	int8_t sampleVal;
+	uint16_t val;
+	uint8_t sampleVal;
 } SoundUnitSplit;
 
 typedef union _SoundUnitUnion
@@ -39,7 +48,7 @@ typedef union _SoundUnitUnion
 typedef struct _Synthesizer
 {
 	SoundUnitUnion SoundUnitUnionList[POLY_NUM];
-	int16_t mixOut;
+	uint16_t mixOut;
 	uint8_t lastSoundUnit;
 } Synthesizer;
 

@@ -1,5 +1,3 @@
-.include "WaveTable.inc"
-
 ENVELOP_LEN=256
 POLY_NUM=6
 
@@ -14,8 +12,8 @@ DECAY_TIME_FACTOR=150
 ; 	uint16_t waveGenAccumulator;
 ; 	uint8_t envelopeLevel;
 ; 	uint8_t envelopePos;
-; 	int16_t val;
-; 	int8_t sampleVal;
+; 	uint16_t val;
+; 	uint8_t sampleVal;
 ; } SoundUnit;
 
 ; typedef struct _SoundUnitSplit
@@ -23,11 +21,12 @@ DECAY_TIME_FACTOR=150
 ; 	uint8_t increment_frac;
 ; 	uint8_t increment_int;
 ; 	uint8_t envelopeStatus;
-; 	uint16_t waveGenAccumulator;
+; 	uint16_t waveGenAccumulator_frac;
+; 	uint16_t waveGenAccumulator_int;
 ; 	uint8_t envelopeLevel;
 ; 	uint8_t envelopePos;
-; 	int16_t val;
-; 	int8_t sampleVal;
+; 	uint16_t val;
+; 	uint8_t sampleVal;
 ; } SoundUnitSplit;
 
 unitSz=10
@@ -35,8 +34,8 @@ unitSz=10
 pIncrement_int=1
 pIncrement_frac=0
 pEnvelopeStatus=2
-pWaveGenAccumulator_h=4
-pWaveGenAccumulator_l=3
+pWaveGenAccumulator_int=4
+pWaveGenAccumulator_frac=3
 pEnvelopeLevel=5
 pEnvelopePos=6
 pVal_l=7
