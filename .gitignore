@@ -1,0 +1,31 @@
+# Windows:
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Python:
+*.py[cod]
+*.so
+*.egg
+*.egg-info
+dist
+build
+
+
+
+*.map
+*.asm
+*.rel
+*.ihx
+*.hex
+*.mem
+*.o
+*.d
+*.sym
+*.lk
+*.lst
+*.rst
+*.cdb
+*.bin
+*.ipch
+.DS_Store
