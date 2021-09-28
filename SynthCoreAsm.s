@@ -31,24 +31,24 @@ envelopUpdateEnd$:
 
 pSynth = SynthAbsAddr
 .irp  Idx,0,1,2,3,4,5
-	pSndUnit = pSynth+Idx*unitSz
-	mov a, (pSndUnit+pWavetablePos_int_l)
-	clr c
-	subb a,#WAVETABLE_ATTACK_LEN
-	mov a, (pSndUnit+pWavetablePos_int_h)
-	subb a,#(WAVETABLE_ATTACK_LEN>>8)
-	jc 	loopGenDecayEnvlope_end'Idx'$
-	mov a,(pSndUnit+pEnvelopePos)
-	clr c
-	subb a,#(ENVELOP_LEN-1)
-	jnc loopGenDecayEnvlope_end'Idx'$
-	mov dptr,#_EnvelopeTable
-	mov a,(pSndUnit+pEnvelopePos)
-	movc a,@a+dptr
-	mov (pSndUnit+pEnvelopeLevel),a
-	inc (pSndUnit+pEnvelopePos)
+	;pSndUnit = pSynth+Idx*unitSz
+	;mov a, (pSndUnit+pWavetablePos_int_l)
+	;clr c
+	;subb a,#WAVETABLE_ATTACK_LEN
+	;mov a, (pSndUnit+pWavetablePos_int_h)
+	;subb a,#(WAVETABLE_ATTACK_LEN>>8)
+	;jc 	loopGenDecayEnvlope_end'Idx'$
+	;mov a,(pSndUnit+pEnvelopePos)
+	;clr c
+	;subb a,#(ENVELOP_LEN-1)
+	;jnc loopGenDecayEnvlope_end'Idx'$
+	;mov dptr,#_EnvelopeTable
+	;mov a,(pSndUnit+pEnvelopePos)
+	;movc a,@a+dptr
+	;mov (pSndUnit+pEnvelopeLevel),a
+	;inc (pSndUnit+pEnvelopePos)
 
-	loopGenDecayEnvlope_end'Idx'$:
+	;loopGenDecayEnvlope_end'Idx'$:
 .endm
 
 
@@ -109,6 +109,11 @@ _NoteOnAsm:
 	mov r1,a
 	mov a,r5
 	mov @r1,a
+
+	mov a,#pEnvelopeStatus
+	add a,r0
+	mov r1,a
+	mov @r1,#0
 
 
 	mov a,#pEnvelopeLevel

@@ -42,43 +42,34 @@ soundUnitProcessEnd'Idx'$:
 	mov r4,(pSynth+pMixOut_l)
 	mov r5,(pSynth+pMixOut_h)
 
-	;if (synthForAsm.mixOut > 253)
+	mov a,r5
+	mov c,a.7
+	rrc a
+	mov r5,a
+	mov a,r4
+	rrc a
+	mov r4,a
+
+;	SynthCore.c:110: if(synthForAsm.mixOut>512)
 	clr	c
-	mov	a,#0xfd
+	mov a,#511
 	subb	a,r4
-	mov	a,#(0x00 ^ 0x80)
-	mov	b,r5
-	xrl	b,#0x80
-	subb	a,b
-	jnc	clipBranchLowerBound$
-	;synthForAsm.mixOut = 253;
-	mov	r4,#0xfd
-	mov	r5,#0x00
-	sjmp	clipBranchEnd$
-	clipBranchLowerBound$:
-	;else if (synthForAsm.mixOut < -255)
-	clr	c
-	mov	a,r4
-	subb	a,#0x01
-	mov	a,r5
-	xrl	a,#0x80
-	subb	a,#0x7f
+	mov	a,#(511>>8)
+	subb	a,r5
 	jnc	clipBranchEnd$
-	;synthForAsm.mixOut = -255;
-	mov	r4,#0x01
-	mov	r5,#0xff
+;	SynthCore.c:111: synthForAsm.mixOut=512;
+	mov	r4,#511
+	mov	r5,#(511>>8)
 	clipBranchEnd$:
 
 	; mixOut = mixOut>>1
 	mov a,r5
-	mov c,a.0
+	mov c,a.7
+	rrc a
+	mov r5,a
 	mov a,r4
 	rrc a
 	mov r4,a
-	clr c
-
-	; a = a - (-128)
-	subb a,#0x80
 
 	mov REG_CCAP0H,a
 	cpl a

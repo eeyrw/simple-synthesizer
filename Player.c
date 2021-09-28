@@ -25,7 +25,7 @@ void PlayerProcess(Player *player)
 
     if (decayGenTick >= DECAY_TIME_FACTOR)
     {
-        GenDecayEnvlopeAsm();
+        GenDecayEnvlopeC();
         decayGenTick = 0;
     }
     if (player->status == STATUS_PLAYING)

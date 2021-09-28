@@ -6,13 +6,13 @@
 
 #define POLY_NUM 6
 #define DECAY_TIME_FACTOR 150
-#define ATTACK_TIME_FACTOR 100
+#define ATTACK_TIME_FACTOR 10
 
 enum ENVELOPE_STATUS
 {
 	STATUS_ATTACK = 0,
 	STATUS_DECAY = 1,
-	STATUS_IDLE = 3
+	STATUS_IDLE = 2
 };
 
 typedef struct _SoundUnit
