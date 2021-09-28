@@ -22,8 +22,8 @@ typedef struct _SoundUnit
 	uint16_t waveGenAccumulator;
 	uint8_t envelopeLevel;
 	uint8_t envelopePos;
-	uint16_t val;
-	uint8_t sampleVal;
+	int16_t val;
+	int8_t sampleVal;
 } SoundUnit;
 
 typedef struct _SoundUnitSplit
@@ -35,8 +35,8 @@ typedef struct _SoundUnitSplit
 	uint8_t waveGenAccumulator_int;
 	uint8_t envelopeLevel;
 	uint8_t envelopePos;
-	uint16_t val;
-	uint8_t sampleVal;
+	int16_t val;
+	int8_t sampleVal;
 } SoundUnitSplit;
 
 typedef union _SoundUnitUnion
@@ -48,7 +48,7 @@ typedef union _SoundUnitUnion
 typedef struct _Synthesizer
 {
 	SoundUnitUnion SoundUnitUnionList[POLY_NUM];
-	uint16_t mixOut;
+	int16_t mixOut;
 	uint8_t lastSoundUnit;
 } Synthesizer;
 

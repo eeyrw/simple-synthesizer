@@ -12,8 +12,8 @@ DECAY_TIME_FACTOR=150
 ; 	uint16_t waveGenAccumulator;
 ; 	uint8_t envelopeLevel;
 ; 	uint8_t envelopePos;
-; 	uint16_t val;
-; 	uint8_t sampleVal;
+; 	int16_t val;
+; 	int8_t sampleVal;
 ; } SoundUnit;
 
 ; typedef struct _SoundUnitSplit
@@ -25,8 +25,8 @@ DECAY_TIME_FACTOR=150
 ; 	uint16_t waveGenAccumulator_int;
 ; 	uint8_t envelopeLevel;
 ; 	uint8_t envelopePos;
-; 	uint16_t val;
-; 	uint8_t sampleVal;
+; 	int16_t val;
+; 	int8_t sampleVal;
 ; } SoundUnitSplit;
 
 unitSz=10
