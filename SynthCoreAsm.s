@@ -90,7 +90,7 @@ _NoteOnAsm:
 	anl a,dpl
 	rl a
 	mov r6,a
-	mov dptr,#_WaveTable_Increment
+	mov dptr,#_AccumIncrement
 	movc a,@a+dptr
 	mov r4,a
 	inc dptr
@@ -121,17 +121,12 @@ _NoteOnAsm:
 	mov r1,a
 	mov @r1,#0
 
-	mov a,#pEnvelopePos
+	mov a,#pWaveGenAccumulator_frac
 	add a,r0
 	mov r1,a
 	mov @r1,#0
 
-	mov a,#pWavetablePos_int_l
-	add a,r0
-	mov r1,a
-	mov @r1,#0
-
-	mov a,#pWavetablePos_int_h
+	mov a,#pWaveGenAccumulator_int
 	add a,r0
 	mov r1,a
 	mov @r1,#0

@@ -49,7 +49,6 @@ SRC 	+= AlgorithmTest.c
 SRC 	+= SynthCore.c
 SRC 	+= Player.c
 SRC 	+= UartRedirect.c
-SRC 	+= WaveTable.c
 SRC 	+= EnvelopTable.c
 SRC 	+= score.c
 
@@ -96,7 +95,6 @@ Synth_testbench.rel: SynthCore.inc 8051.inc Synth.inc UpdateTick.inc
 UpdateTick_testbench.rel: SynthCore.inc 8051.inc Synth.inc UpdateTick.inc
 SynthCoreAsm.rel: SynthCore.inc
 PlayerUtil.rel: SynthCore.inc Player.inc
-SynthCore.inc: WaveTable.inc
 endif
 
 
