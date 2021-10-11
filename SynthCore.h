@@ -5,8 +5,8 @@
 #include "EnvelopeTable.h"
 
 #define POLY_NUM 6
-#define DECAY_TIME_FACTOR 50
-#define ATTACK_TIME_FACTOR 9
+#define DECAY_TIME_FACTOR 60
+#define ATTACK_TIME_FACTOR 40
 
 enum ENVELOPE_STATUS
 {
